@@ -10,10 +10,17 @@ const images = [
   'skySlice',
 ]
 
+const gameDimensions = {
+  width: 1024,
+  height: 768,
+}
+
 const state = {
   world: {
     background: {
-      x: 0
+      imageWidth: 4734,
+      tileWidth: gameDimensions.width,
+      x: gameDimensions.width * -1
     },
   },
   player: {
@@ -44,6 +51,9 @@ const updateState = () => {
 
   // World moves.
   state.world.background.x += state.player.speed
+  if (state.world.background.x > gameDimensions.width / state.world.background.imageWidth) {
+    state.world.background.x = gameDimensions.width * -1
+  }
 }
 
 playground({
