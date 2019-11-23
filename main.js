@@ -12,11 +12,14 @@ const images = [
 
 const state = {
   world: {
-    x: 0,
+    background: {
+      x: 0
+    },
   },
   player: {
     x: 0,
     y: 0,
+    speed: 3,
   },
   presentsInAir: [],
   houses: [],
@@ -34,9 +37,13 @@ const dropPresent = () => {
 }
 
 const updateState = () => {
+  // Presents go down.
   state.presentsInAir.forEach(present => {
     present.y += present.velocities.y
   })
+
+  // World moves.
+  state.world.background.x += state.player.speed
 }
 
 playground({
@@ -66,6 +73,9 @@ playground({
 
     // Draw the sky.
     this.layer.drawImage(this.images.skySlice, 0, 0, this.width, this.height)
+
+    // Draw the background.
+    this.layer.drawImage(this.images.background, state.world.background.x, 640, this.width * 2, 150)
 
     // Draw presents in the air.
     // @todo
