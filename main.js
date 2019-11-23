@@ -50,7 +50,7 @@ const updateState = () => {
   })
 
   // World moves.
-  state.world.background.x += state.player.speed
+  state.world.background.x += state.player.speed / 2 // "Parallax" effect is achieved with this, because the houses will move at the speed of the player.
   if (state.world.background.x > gameDimensions.width / state.world.background.imageWidth) {
     state.world.background.x = gameDimensions.width * -1
   }
@@ -69,6 +69,14 @@ playground({
   },
 
   ready: function() {
+    // Create our array of houses.
+    const amountOfHouses = 100
+    for (let i = 0; i < amountOfHouses; i++) {
+      state.houses.push({
+        x: 0,
+        happy: false,
+      })
+    }
   },
 
   resize: function() {
