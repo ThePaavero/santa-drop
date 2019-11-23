@@ -32,6 +32,8 @@ const state = {
   houses: [],
 }
 
+const houseQueueX = state.houses.length * -1
+
 const dropPresent = () => {
   state.presentsInAir.push({
     x: state.player.x,
@@ -54,6 +56,16 @@ const updateState = () => {
   if (state.world.background.x > gameDimensions.width / state.world.background.imageWidth) {
     state.world.background.x = gameDimensions.width * -1
   }
+
+  // Move houses.
+  state.houses.forEach(house => {
+    house.x += state.player.speed
+
+    // Move house to the "beginning"? Recycling! :)
+    if (house.x > gameDimensions.width) {
+      house.x = gameDimensions.width * -1
+    }
+  })
 }
 
 playground({
@@ -70,10 +82,10 @@ playground({
 
   ready: function() {
     // Create our array of houses.
-    const amountOfHouses = 100
+    const amountOfHouses = 4
     for (let i = 0; i < amountOfHouses; i++) {
       state.houses.push({
-        x: 0,
+        x: houseQueueX - (i * this.width / 2),
         happy: false,
       })
     }
@@ -97,6 +109,11 @@ playground({
 
     // Draw presents in the air.
     // @todo
+
+    // Draw houses.
+    state.houses.forEach(house => {
+      this.layer.drawImage(this.images.house, house.x, 580, this.width / 5, 190)
+    })
   },
 
   keydown: function(data) {
