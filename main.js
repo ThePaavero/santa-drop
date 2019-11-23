@@ -30,6 +30,7 @@ const state = {
   },
   presentsInAir: [],
   houses: [],
+  crashParticles: [],
 }
 
 const houseQueueX = state.houses.length * -1
@@ -45,6 +46,44 @@ const dropPresent = () => {
   })
 }
 
+const randomBetween = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
+const blowUpPresent = (present) => {
+  const amountOfPieces = randomBetween(10, 20)
+  for (let i = 0; i < amountOfPieces; i++) {
+    state.crashParticles.push({
+      x: present.x,
+      y: present.y,
+      width: 5,
+      height: 5,
+      velocities: {
+        x: randomBetween(-10, 10),
+        y: randomBetween(10, 20),
+      },
+    })
+  }
+}
+
+const updateCrashParticles = () => {
+  state.crashParticles.forEach(particle => {
+    // Gravity.
+    particle.velocities.y += 1
+
+    if (particle.velocities.x > 0) {
+      particle.velocities.x -= 1
+    } else {
+      particle.velocities.x += 1
+    }
+
+    // Garbage collection.
+    if (particle.y > gameDimensions.height) {
+      state.crashParticles = state.crashParticles.filter(p => p !== particle)
+    }
+  })
+}
+
 const updateState = () => {
 
   // Presents go down.
@@ -56,6 +95,9 @@ const updateState = () => {
 
     // Remove if it's hit the floor.
     if (present.y > gameDimensions.height) {
+      // Make a "splash" first.
+      blowUpPresent(present)
+      // Then, delete it from our array.
       state.presentsInAir = state.presentsInAir.filter(p => p !== present)
     }
   })
@@ -80,6 +122,9 @@ const updateState = () => {
   // Move the player.
   state.player.x = (gameDimensions.width / 2) - (270)
   state.player.y = 80
+
+  // Process possible crash particles.
+  updateCrashParticles()
 }
 
 playground({
@@ -130,6 +175,12 @@ playground({
 
     // Draw the player.
     this.layer.drawImage(this.images.player, state.player.x, state.player.y, this.width / 2, 140)
+
+    // Draw crash particles.
+    state.crashParticles.forEach(particle => {
+      this.layer.fillStyle('#000')
+      this.layer.fillRect(particle.x, particle.y, particle.width, particle.height)
+    })
   },
 
   mouseup: function(data) {
