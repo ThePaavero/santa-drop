@@ -36,8 +36,8 @@ const houseQueueX = state.houses.length * -1
 
 const dropPresent = () => {
   state.presentsInAir.push({
-    x: state.player.x,
-    y: state.player.y,
+    x: state.player.x + 450,
+    y: state.player.y + 40,
     velocities: {
       x: 0,
       y: 3,
@@ -50,7 +50,9 @@ const updateState = () => {
   // Presents go down.
   state.presentsInAir.forEach(present => {
     present.y += present.velocities.y
+    present.x += present.velocities.x
     present.velocities.y += 0.2
+    present.velocities.x += 0.03
 
     // Remove if it's hit the floor.
     if (present.y > gameDimensions.height) {
@@ -76,7 +78,7 @@ const updateState = () => {
   })
 
   // Move the player.
-  state.player.x = (gameDimensions.width / 2) - (150)
+  state.player.x = (gameDimensions.width / 2) - (270)
   state.player.y = 80
 }
 
