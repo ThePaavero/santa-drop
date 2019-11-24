@@ -53,14 +53,18 @@ const randomBetween = (min, max) => {
 const blowUpPresent = (x, y) => {
   const amountOfPieces = randomBetween(10, 20)
   for (let i = 0; i < amountOfPieces; i++) {
-    const energy = randomBetween(10, 40)
+    let energy = randomBetween(10, 20)
+    // Surprise the player with a piece of debris flying really high.
+    if (randomBetween(0, 10) === 0) {
+      energy = randomBetween(30, 40)
+    }
     state.crashParticles.push({
       x,
       y: y - 20,
       width: randomBetween(3, 7),
       height: randomBetween(3, 7),
       velocities: {
-        x: randomBetween(energy / 2 * -1, energy / 2),
+        x: randomBetween(energy / 3 * -1, energy / 3),
         y: randomBetween(energy * -1, energy),
       },
     })
@@ -72,12 +76,18 @@ const updateCrashParticles = () => {
     // Gravity.
     particle.velocities.y += 1
 
+    // "World" movement.
+    particle.x += state.player.speed
+
+    // Slow the horizontal speed down a bit.
+    const inertia = 0.05
     if (particle.velocities.x > 0) {
-      particle.velocities.x -= 1
+      particle.velocities.x -= inertia
     } else {
-      particle.velocities.x += 1
+      particle.velocities.x += inertia
     }
 
+    // Move the particle.
     particle.y += particle.velocities.y
     particle.x += particle.velocities.x
 
@@ -131,7 +141,12 @@ const updateState = () => {
   updateCrashParticles()
 }
 
+const debugWindowElement = document.querySelector('.debugWindow pre')
+
 const updateDebugWindow = (state) => {
+  if (!debugWindowElement) {
+    return
+  }
   document.querySelector('.debugWindow pre').innerHTML = `${JSON.stringify(state, null, 2)}`
 }
 
