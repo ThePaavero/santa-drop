@@ -50,17 +50,17 @@ const randomBetween = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
-const blowUpPresent = (present) => {
+const blowUpPresent = (x, y) => {
   const amountOfPieces = randomBetween(10, 20)
   for (let i = 0; i < amountOfPieces; i++) {
     state.crashParticles.push({
-      x: present.x,
-      y: present.y,
-      width: 5,
-      height: 5,
+      x,
+      y: y - 20,
+      width: randomBetween(3, 7),
+      height: randomBetween(3, 7),
       velocities: {
-        x: randomBetween(-10, 10),
-        y: randomBetween(10, 20),
+        x: randomBetween(-30, 30),
+        y: randomBetween(-20, -60),
       },
     })
   }
@@ -77,8 +77,11 @@ const updateCrashParticles = () => {
       particle.velocities.x += 1
     }
 
+    particle.y += particle.velocities.y
+    particle.x += particle.velocities.x
+
     // Garbage collection.
-    if (particle.y > gameDimensions.height) {
+    if (particle.y + particle.height > gameDimensions.height) {
       state.crashParticles = state.crashParticles.filter(p => p !== particle)
     }
   })
@@ -96,7 +99,7 @@ const updateState = () => {
     // Remove if it's hit the floor.
     if (present.y > gameDimensions.height) {
       // Make a "splash" first.
-      blowUpPresent(present)
+      blowUpPresent(present.x, present.y)
       // Then, delete it from our array.
       state.presentsInAir = state.presentsInAir.filter(p => p !== present)
     }
@@ -127,6 +130,11 @@ const updateState = () => {
   updateCrashParticles()
 }
 
+const updateDebugWindow = (state) => {
+  document.querySelector('.debugWindow pre').innerHTML = `${JSON.stringify(state, null, 2)}`
+}
+
+
 playground({
 
   width: gameDimensions.width,
@@ -155,6 +163,8 @@ playground({
   },
 
   render: function() {
+
+    // Clear the canvas.
     this.layer.clear("#000")
 
     // Draw the sky.
@@ -181,6 +191,9 @@ playground({
       this.layer.fillStyle('#000')
       this.layer.fillRect(particle.x, particle.y, particle.width, particle.height)
     })
+
+    // Update our debug window.
+    updateDebugWindow(state)
   },
 
   mouseup: function(data) {
