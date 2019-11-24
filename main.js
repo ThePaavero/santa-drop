@@ -51,7 +51,7 @@ const randomBetween = (min, max) => {
 }
 
 const blowUpPresent = (x, y) => {
-  const amountOfPieces = randomBetween(10, 20)
+  const amountOfPieces = randomBetween(20, 40)
   for (let i = 0; i < amountOfPieces; i++) {
     let energy = randomBetween(10, 20)
     // Surprise the player with a piece of debris flying really high.
@@ -76,9 +76,6 @@ const updateCrashParticles = () => {
     // Gravity.
     particle.velocities.y += 1
 
-    // "World" movement.
-    particle.x += state.player.speed
-
     // Slow the horizontal speed down a bit.
     const inertia = 0.05
     if (particle.velocities.x > 0) {
@@ -86,6 +83,9 @@ const updateCrashParticles = () => {
     } else {
       particle.velocities.x += inertia
     }
+
+    // "World" movement.
+    particle.x += state.player.speed
 
     // Move the particle.
     particle.y += particle.velocities.y
@@ -96,6 +96,15 @@ const updateCrashParticles = () => {
       state.crashParticles = state.crashParticles.filter(p => p !== particle)
     }
   })
+}
+
+const processPresents = () => {
+  // Remove any presents that are too high up for anything interesting to happen.
+  const ceiling = gameDimensions.height - 20
+  const presents = state.presentsInAir.filter(p => p.y < ceiling)
+  if (presents.length > 0) {
+    console.log(presents)
+  }
 }
 
 const updateState = () => {
@@ -139,6 +148,9 @@ const updateState = () => {
 
   // Process possible crash particles.
   updateCrashParticles()
+
+  // See where the presents are landing.
+  processPresents()
 }
 
 const debugWindowElement = document.querySelector('.debugWindow pre')
