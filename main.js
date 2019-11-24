@@ -130,14 +130,11 @@ const swayPlayer = () => {
   // Don't let santa escape.
   const buffer = 40
   if (state.player.x < buffer) {
-    console.log('Hitting the left wall')
     state.player.x = buffer
   } else if (state.player.x - 150 > gameDimensions.width - buffer) {
-    console.log('Hitting the right wall')
     state.player.x = gameDimensions.width - buffer - 350
   }
   if (state.player.y < buffer) {
-    console.log('Hitting the ceiling')
     state.player.y = buffer
   } else if (state.player.y > gameDimensions.height / 2) {
     state.player.y = gameDimensions.height / 2
