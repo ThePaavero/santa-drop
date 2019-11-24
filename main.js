@@ -38,13 +38,17 @@ const state = {
   tutorialMode: true,
   tutorialModeArrow: {
     x: 0,
-    y: 400,
+    y: 500,
+    velocities: {
+      x: 0,
+      y: -0.4,
+    },
   },
 }
 
 setTimeout(() => {
   state.tutorialMode = false
-}, 5000)
+}, 6000)
 
 const houseQueueX = state.houses.length * -1
 
@@ -188,15 +192,30 @@ const updateState = () => {
 
   // Are we in tutorial mode?
   if (state.tutorialMode) {
-    state.tutorialModeArrow.x += state.player.speed
-    if (state.tutorialModeArrow.x > gameDimensions.width) {
-      state.tutorialModeArrow = null
-    }
+    updateTutorialArrow()
   }
 
   // Sway the player so he can't just place the cursor somewhere, etc.
   swayPlayer()
 }
+
+const updateTutorialArrow = () => {
+  const topStop = 450
+  const bottomStop = 510
+  state.tutorialModeArrow.x += state.player.speed
+  state.tutorialModeArrow.y += state.tutorialModeArrow.velocities.y
+  let dir = ''
+  // state.tutorialModeArrow.velocities.y += 0.05 * (state.tutorialModeArrow.y < 400 ? 1 : -1)
+  if (state.tutorialModeArrow.velocities.y === -1 || state.tutorialModeArrow.velocities.y === 1) {
+    state.tutorialModeArrow.velocities.y = state.tutorialModeArrow.velocities.y * -1
+    dir = state.tutorialModeArrow.velocities.y > 0 ? 'down' : 'up'
+  }
+  if (state.tutorialModeArrow.y < topStop || state.tutorialModeArrow.y > bottomStop) {
+    state.tutorialModeArrow.velocities.y = dir === 'down' ? 2 : -2
+    // console.log('state.tutorialModeArrow.velocities.y:', state.tutorialModeArrow.velocities.y)
+  }
+}
+
 
 const debugWindowElement = document.querySelector('.debugWindow pre')
 
@@ -267,7 +286,7 @@ playground({
 
     // Draw possible tutorial arrow.
     if (state.tutorialMode) {
-      this.layer.drawImage(this.images.arrow, state.tutorialModeArrow.x, state.tutorialModeArrow.y, 25, 33)
+      // this.layer.drawImage(this.images.arrow, state.tutorialModeArrow.x, state.tutorialModeArrow.y, 25, 33)
     }
 
     // Update our debug window.
