@@ -121,10 +121,10 @@ const processPresents = () => {
 }
 
 const swayPlayer = () => {
-  const force = 20
+  const force = 0.5
   state.player.velocities.x += randomBetween(force * -1, force)
   state.player.velocities.y += randomBetween(force * -1, force)
-  state.player.x += state.player.velocities.x
+  state.player.x += state.player.velocities.x * 2 // Move more horizontally.
   state.player.y += state.player.velocities.y
 
   // Don't let santa escape.
