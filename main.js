@@ -44,7 +44,7 @@ const state = {
 
 setTimeout(() => {
   state.tutorialMode = false
-}, 8000)
+}, 5000)
 
 const houseQueueX = state.houses.length * -1
 
@@ -187,7 +187,7 @@ const updateState = () => {
   processPresents()
 
   // Are we in tutorial mode?
-  if (state.tutorialModeArrow) {
+  if (state.tutorialMode) {
     state.tutorialModeArrow.x += state.player.speed
     if (state.tutorialModeArrow.x > gameDimensions.width) {
       state.tutorialModeArrow = null
@@ -264,6 +264,11 @@ playground({
       this.layer.fillStyle('#000')
       this.layer.fillRect(particle.x, particle.y, particle.width, particle.height)
     })
+
+    // Draw possible tutorial arrow.
+    if (state.tutorialMode) {
+      this.layer.drawImage(this.images.arrow, state.tutorialModeArrow.x, state.tutorialModeArrow.y, 25, 33)
+    }
 
     // Update our debug window.
     updateDebugWindow(state)
