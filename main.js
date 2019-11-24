@@ -53,14 +53,15 @@ const randomBetween = (min, max) => {
 const blowUpPresent = (x, y) => {
   const amountOfPieces = randomBetween(10, 20)
   for (let i = 0; i < amountOfPieces; i++) {
+    const energy = randomBetween(10, 40)
     state.crashParticles.push({
       x,
       y: y - 20,
       width: randomBetween(3, 7),
       height: randomBetween(3, 7),
       velocities: {
-        x: randomBetween(-30, 30),
-        y: randomBetween(-20, -60),
+        x: randomBetween(energy / 2 * -1, energy / 2),
+        y: randomBetween(energy * -1, energy),
       },
     })
   }
