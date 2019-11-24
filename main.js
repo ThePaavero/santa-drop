@@ -27,11 +27,24 @@ const state = {
     x: 0,
     y: 0,
     speed: 3,
+    velocities: {
+      x: 0,
+      y: 0,
+    },
   },
   presentsInAir: [],
   houses: [],
   crashParticles: [],
+  tutorialMode: true,
+  tutorialModeArrow: {
+    x: 0,
+    y: 400,
+  },
 }
+
+setTimeout(() => {
+  state.tutorialMode = false
+}, 8000)
 
 const houseQueueX = state.houses.length * -1
 
@@ -103,7 +116,31 @@ const processPresents = () => {
   const ceiling = gameDimensions.height - 20
   const presents = state.presentsInAir.filter(p => p.y < ceiling)
   if (presents.length > 0) {
-    console.log(presents)
+    // console.log(presents)
+  }
+}
+
+const swayPlayer = () => {
+  const force = 20
+  state.player.velocities.x += randomBetween(force * -1, force)
+  state.player.velocities.y += randomBetween(force * -1, force)
+  state.player.x += state.player.velocities.x
+  state.player.y += state.player.velocities.y
+
+  // Don't let santa escape.
+  const buffer = 40
+  if (state.player.x < buffer) {
+    console.log('Hitting the left wall')
+    state.player.x = buffer
+  } else if (state.player.x - 150 > gameDimensions.width - buffer) {
+    console.log('Hitting the right wall')
+    state.player.x = gameDimensions.width - buffer - 350
+  }
+  if (state.player.y < buffer) {
+    console.log('Hitting the ceiling')
+    state.player.y = buffer
+  } else if (state.player.y > gameDimensions.height / 2) {
+    state.player.y = gameDimensions.height / 2
   }
 }
 
@@ -151,6 +188,17 @@ const updateState = () => {
 
   // See where the presents are landing.
   processPresents()
+
+  // Are we in tutorial mode?
+  if (state.tutorialModeArrow) {
+    state.tutorialModeArrow.x += state.player.speed
+    if (state.tutorialModeArrow.x > gameDimensions.width) {
+      state.tutorialModeArrow = null
+    }
+  }
+
+  // Sway the player so he can't just place the cursor somewhere, etc.
+  swayPlayer()
 }
 
 const debugWindowElement = document.querySelector('.debugWindow pre')
