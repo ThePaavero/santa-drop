@@ -36,16 +36,8 @@ const state = {
   tutorialModeArrow: {
     x: 0,
     y: 500,
-    velocities: {
-      x: 0,
-      y: -0.4,
-    },
   },
 }
-
-setTimeout(() => {
-  state.tutorialMode = false
-}, 6000)
 
 const houseQueueX = state.houses.length * -1
 
@@ -156,35 +148,15 @@ const updateState = () => {
     }
   })
 
+  // Move our "tutorial arrow".
+  state.tutorialModeArrow.x += state.player.speed
+
   // Process possible crash particles.
   updateCrashParticles()
 
   // See where the presents are landing.
   processPresents()
-
-  // Are we in tutorial mode?
-  if (state.tutorialMode) {
-    updateTutorialArrow()
-  }
 }
-
-const updateTutorialArrow = () => {
-  const topStop = 450
-  const bottomStop = 510
-  state.tutorialModeArrow.x += state.player.speed
-  state.tutorialModeArrow.y += state.tutorialModeArrow.velocities.y
-  let dir = ''
-  // state.tutorialModeArrow.velocities.y += 0.05 * (state.tutorialModeArrow.y < 400 ? 1 : -1)
-  if (state.tutorialModeArrow.velocities.y === -1 || state.tutorialModeArrow.velocities.y === 1) {
-    state.tutorialModeArrow.velocities.y = state.tutorialModeArrow.velocities.y * -1
-    dir = state.tutorialModeArrow.velocities.y > 0 ? 'down' : 'up'
-  }
-  if (state.tutorialModeArrow.y < topStop || state.tutorialModeArrow.y > bottomStop) {
-    state.tutorialModeArrow.velocities.y = dir === 'down' ? 2 : -2
-    // console.log('state.tutorialModeArrow.velocities.y:', state.tutorialModeArrow.velocities.y)
-  }
-}
-
 
 const debugWindowElement = document.querySelector('.debugWindow pre')
 
@@ -229,12 +201,26 @@ playground({
     }
     sway()
 
-    // Rotate faster.
+    // Rotate player a little.
     const rotationRange = 0.02
     this.tween(state.player)
       .to({rotation: rotationRange}, animationDurationInSeconds / 10, easing)
       .to({rotation: rotationRange * -1}, animationDurationInSeconds / 10, easing)
       .loop()
+
+    // Tween our "tutorial arrow."
+    const arrowTween = this.tween(state.tutorialModeArrow)
+      .to({
+        y: 500
+      }, 0.2, easing)
+      .to({
+        y: 470
+      }, 0.2, easing)
+      .loop()
+    setTimeout(() => {
+      state.tutorialMode = false
+      arrowTween.stop()
+    }, 5000)
   },
 
   ready: function () {
@@ -289,14 +275,18 @@ playground({
 
     // Draw possible tutorial arrow.
     if (state.tutorialMode) {
-      // this.layer.drawImage(this.images.arrow, state.tutorialModeArrow.x, state.tutorialModeArrow.y, 25, 33)
+      this.layer.drawImage(this.images.arrow, state.tutorialModeArrow.x, state.tutorialModeArrow.y, 25, 33)
     }
 
     // Update our debug window.
     updateDebugWindow(state)
   },
 
-  mouseup: function (data) {
+  pointerdown: function () {
+    dropPresent()
+  },
+
+  keydown: function () {
     dropPresent()
   },
 })
