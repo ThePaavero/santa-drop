@@ -24,13 +24,10 @@ const state = {
     },
   },
   player: {
-    x: 0,
-    y: 0,
+    x: gameDimensions.width / 2 - 350,
+    y: gameDimensions.width / 5,
+    rotation: 0,
     speed: 3,
-    velocities: {
-      x: 0,
-      y: 0,
-    },
   },
   presentsInAir: [],
   houses: [],
@@ -124,27 +121,6 @@ const processPresents = () => {
   }
 }
 
-const swayPlayer = () => {
-  const force = 0.5
-  state.player.velocities.x += randomBetween(force * -1, force)
-  state.player.velocities.y += randomBetween(force * -1, force)
-  state.player.x += state.player.velocities.x * 2 // Move more horizontally.
-  state.player.y += state.player.velocities.y
-
-  // Don't let santa escape.
-  const buffer = 40
-  if (state.player.x < buffer) {
-    state.player.x = buffer
-  } else if (state.player.x - 150 > gameDimensions.width - buffer) {
-    state.player.x = gameDimensions.width - buffer - 350
-  }
-  if (state.player.y < buffer) {
-    state.player.y = buffer
-  } else if (state.player.y > gameDimensions.height / 2) {
-    state.player.y = gameDimensions.height / 2
-  }
-}
-
 const updateState = () => {
 
   // Presents go down.
@@ -180,10 +156,6 @@ const updateState = () => {
     }
   })
 
-  // Move the player.
-  state.player.x = (gameDimensions.width / 2) - (270)
-  state.player.y = 80
-
   // Process possible crash particles.
   updateCrashParticles()
 
@@ -194,9 +166,6 @@ const updateState = () => {
   if (state.tutorialMode) {
     updateTutorialArrow()
   }
-
-  // Sway the player so he can't just place the cursor somewhere, etc.
-  swayPlayer()
 }
 
 const updateTutorialArrow = () => {
@@ -233,13 +202,42 @@ playground({
   height: gameDimensions.height,
   scale: 1,
 
-  create: function() {
+  create: function () {
     images.forEach(imgSlug => {
       this.loadImage(`${imgSlug}.png`)
     })
+
+    const animationDurationInSeconds = 10
+    const easing = 'inOutSine'
+
+    // Move the player around a bit.
+    const sway = () => {
+      const minX = 100
+      const minY = 30
+      const maxX = (gameDimensions.width / 2) - 100
+      const maxY = gameDimensions.height / 3
+      this.tween(state.player)
+        .to({
+          x: randomBetween(minX, maxX),
+          y: randomBetween(minY, maxY),
+        }, animationDurationInSeconds, easing)
+        .to({
+          x: randomBetween(minX, maxX),
+          y: randomBetween(minY, maxY),
+        }, animationDurationInSeconds, easing)
+      setTimeout(sway, animationDurationInSeconds * 1000)
+    }
+    sway()
+
+    // Rotate faster.
+    const rotationRange = 0.02
+    this.tween(state.player)
+      .to({rotation: rotationRange}, animationDurationInSeconds / 10, easing)
+      .to({rotation: rotationRange * -1}, animationDurationInSeconds / 10, easing)
+      .loop()
   },
 
-  ready: function() {
+  ready: function () {
     // Create our array of houses.
     const amountOfHouses = 4
     for (let i = 0; i < amountOfHouses; i++) {
@@ -250,11 +248,11 @@ playground({
     }
   },
 
-  step: function(dt) {
+  step: function (dt) {
     updateState()
   },
 
-  render: function() {
+  render: function () {
 
     // Clear the canvas.
     this.layer.clear("#000")
@@ -276,7 +274,12 @@ playground({
     })
 
     // Draw the player.
-    this.layer.drawImage(this.images.player, state.player.x, state.player.y, this.width / 2, 140)
+    // @todo Anchor in the middle of the player before rotating.
+    this.layer
+      .save()
+      .rotate(state.player.rotation)
+      .drawImage(this.images.player, state.player.x, state.player.y, this.width / 2, 140)
+      .restore()
 
     // Draw crash particles.
     state.crashParticles.forEach(particle => {
@@ -293,7 +296,7 @@ playground({
     updateDebugWindow(state)
   },
 
-  mouseup: function(data) {
+  mouseup: function (data) {
     dropPresent()
   },
 })
